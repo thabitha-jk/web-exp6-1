@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cake Shop Ordering System</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 10px 30px rgba(255, 152, 0, 0.2);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #e91e63, #ff6f00);
+            color: white;
+            text-align: center;
+            padding: 25px;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2.2rem;
+            font-weight: 700;
+        }
+        .cake-gallery {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 20px;
+            background: #fff8e1;
+        }
+        .cake-item {
+            text-align: center;
+            width: 140px;
+        }
+        .cake-item img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 4px solid #ffcc80;
+            object-fit: cover;
+        }
+        .cake-item p {
+            margin: 8px 0 0;
+            font-weight: 600;
+            color: #d84315;
+        }
+        .order-form {
+            padding: 30px;
+            background: #fff;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #e65100;
+        }
+        select, input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ffcc80;
+            border-radius: 10px;
+            font-size: 1rem;
+            background: #fffde7;
+        }
+        select:focus, input:focus {
+            outline: none;
+            border-color: #ff6f00;
+            background: white;
+        }
+        button {
+            grid-column: 1 / -1;
+            padding: 14px;
+            background: linear-gradient(135deg, #e91e63, #ff6f00);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(233, 30, 99, 0.3);
+        }
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            background: #e8f5e8;
+            border-radius: 12px;
+            border-left: 5px solid #4caf50;
+            display: none;
+        }
+        .result h3 {
+            margin-top: 0;
+            color: #2e7d32;
+        }
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Cake Shop</h1>
+        </header>
+
+        <div class="cake-gallery">
+            <div class="cake-item">
+                <img src="https://via.placeholder.com/100/FF69B4/FFFFFF?text=Rainbow" alt="Rainbow Cake">
+                <p>Rainbow Cake - Rs. 300</p>
+            </div>
+            <div class="cake-item">
+                <img src="https://via.placeholder.com/100/8B4513/FFFFFF?text=Chocolate" alt="Chocolate Cake">
+                <p>Chocolate Cake - Rs. 350</p>
+            </div>
+            <div class="cake-item">
+                <img src="https://via.placeholder.com/100/FFD700/000000?text=Butterscotch" alt="Butterscotch">
+                <p>Butterscotch - Rs. 320</p>
+            </div>
+            <div class="cake-item">
+                <img src="https://via.placeholder.com/100/228B22/FFFFFF?text=Black+Forest" alt="Black Forest">
+                <p>Black Forest - Rs. 380</p>
+            </div>
+        </div>
+
+        <div class="order-form">
+            <h2 style="text-align:center; color:#e91e63;">Place Your Order</h2>
+            <div class="form-grid">
+                <div>
+                    <label for="cakeSelect">Select Cake</label>
+                    <select id="cakeSelect">
+                        <option value="">-- Choose Cake --</option>
+                        <option value="300">Rainbow Cake (Rs. 300/kg)</option>
+                        <option value="350">Chocolate Cake (Rs. 350/kg)</option>
+                        <option value="320">Butterscotch Cake (Rs. 320/kg)</option>
+                        <option value="380">Black Forest Cake (Rs. 380/kg)</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="quantity">Quantity (kg)</label>
+                    <input type="number" id="quantity" min="0.5" step="0.1" placeholder="e.g., 1.5">
+                </div>
+            </div>
+            <button id="placeOrder">Place Order</button>
+
+            <div class="result" id="orderResult">
+                <h3>Order Summary</h3>
+                <p id="orderDetails"></p>
+                <p id="totalAmount" style="font-weight:700; color:#2e7d32;"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#placeOrder').click(function() {
+                let cake = $('#cakeSelect').val();
+                let qty = parseFloat($('#quantity').val());
+
+                if (!cake) {
+                    alert('Please select a cake!');
+                    return;
+                }
+                if (isNaN(qty) || qty < 0.5) {
+                    alert('Please enter valid quantity (min 0.5 kg)');
+                    return;
+                }
+
+                let cakeName = $('#cakeSelect option:selected').text().split(' (')[0];
+                let price = parseFloat(cake);
+                let total = price * qty;
+
+                $('#orderDetails').html(`<strong>${cakeName}</strong> × ${qty} kg @ Rs. ${price}/kg`);
+                $('#totalAmount').html(`Total: <strong>Rs. ${total.toFixed(2)}</strong>`);
+                $('#orderResult').fadeIn(600);
+            });
+
+            // Optional: Auto-calculate on input change
+            $('#quantity, #cakeSelect').change(function() {
+                if ($('#quantity').val() && $('#cakeSelect').val()) {
+                    $('#placeOrder').click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
